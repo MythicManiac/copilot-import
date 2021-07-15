@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "copilot"
+name = "copilot-import"
 version = "1.0.0"
 description = "Inspired by https://github.com/drathier/stack-overflow-import"
 authors = [
@@ -7,6 +7,9 @@ authors = [
     "Thijs Molendijk <info@thijsmolendijk.nl>",
 ]
 license = "MIT"
+packages = [
+    { include = "copilot" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
