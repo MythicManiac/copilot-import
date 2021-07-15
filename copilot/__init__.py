@@ -101,10 +101,10 @@ def wrap_fn(name: str):
             else:
                 imports.append(missing_name)
                 return wrapper(*args)
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
             raise ImportError(
                 "Copilot source references a missing value that is also not a module",
-            )
+            ) from e
 
     wrapper._code = source
 
@@ -144,4 +144,5 @@ class CopilotImporter(MetaPathFinder, Loader):
         return False
 
 
-sys.meta_path.append(CopilotImporter())
+def install():
+    sys.meta_path.append(CopilotImporter())
