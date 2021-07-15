@@ -92,6 +92,9 @@ def wrap_fn(name: str):
             )
             return loc[name](*args)
         except NameError as e:
+            # In case there's a name error, attempt to re-run the code with the
+            # missing name added to imports first. In other words this should
+            # solve some cases where copilot forgets to add appropriate imports.
             missing_name = e.args[0].split("'")[1]
 
             if missing_name in imports:
