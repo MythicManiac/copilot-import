@@ -14,8 +14,12 @@ packages = [
     { include = "copilot" },
 ]
 
+[tool.poetry.scripts]
+copilot-auth = 'copilot.authflow:run'
+
 [tool.poetry.dependencies]
 python = "^3.8"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 
