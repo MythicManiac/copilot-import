@@ -8,6 +8,8 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/MythicManiac/copilot-import"
+repository = "https://github.com/MythicManiac/copilot-import"
 packages = [
     { include = "copilot" },
 ]
