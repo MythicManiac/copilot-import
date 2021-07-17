@@ -1,5 +1,4 @@
 import ast
-import http.client
 import json
 import os
 import sys
@@ -7,11 +6,16 @@ from importlib.abc import Loader, MetaPathFinder
 from importlib.util import spec_from_loader
 from typing import Any, Dict, List
 
+import requests
+
 TOKEN = os.environ.get("GITHUB_COPILOT_TOKEN")
+COPILOT_API_URL = (
+    "https://copilot.githubassets.com"
+    "/v1/engines/github-py-stochbpe-cushman-pii/completions"
+)
 
 
 def get_suggestion(file: str, snippet: str, stops: List[str]) -> Dict[Any, Any]:
-    conn = http.client.HTTPSConnection("copilot.githubassets.com")
     payload = json.dumps(
         {
             "prompt": f"// Language: python\n// Path: {file}\n{snippet}",
@@ -30,22 +34,20 @@ def get_suggestion(file: str, snippet: str, stops: List[str]) -> Dict[Any, Any]:
         "Authorization": f"Bearer {TOKEN}",
         "Content-Type": "application/json",
     }
-    conn.request(
-        "POST",
-        "/v1/engines/github-py-stochbpe-cushman-pii/completions",
-        payload,
-        headers,
+
+    response = requests.post(
+        COPILOT_API_URL,
+        data=payload,
+        headers=headers,
     )
-    response = conn.getresponse()
-    data = response.read()
-    if response.status != 200:
+    if response.status_code != 200:
         raise RuntimeError(
             "Copilot returned an error:\n"
-            f"Status: {response.status}\n"
+            f"Status: {response.status_code}\n"
             "Response:\n\n"
-            f"{data}",
+            f"{response.content}",
         )
-    return json.loads(data.decode("utf-8"))
+    return json.loads(response.text)
 
 
 def get_fn(name: str) -> str:
@@ -81,15 +83,16 @@ def wrap_fn(name: str):
         try:
             loc = {}
             lines = source.split("\n")
-            exec(
-                lines[0]
-                + "\n    "
-                + "\n".join([f"import {i}" for i in imports])
-                + "\n"
-                + "\n".join(lines[1:]),
-                globals(),
-                loc,
-            )
+
+            signature = lines[0]
+            # TODO: Detect what indentation copilot generated for us
+            #       seems to be a fairly consistent 4 so that'll do for now
+            import_block = "\n".join([f"    import {i}" for i in imports])
+            body = "\n".join(lines[1:])
+
+            function_code = f"{signature}\n{import_block}\n{body}"
+
+            exec(function_code, globals(), loc)
             return loc[name](*args)
         except NameError as e:
             # In case there's a name error, attempt to re-run the code with the
