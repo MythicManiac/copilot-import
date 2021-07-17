@@ -3,3 +3,4 @@ max-line-length = 88
 exclude =
   .git,
   __pycache__,
+ignore = PIE786

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "copilot-import"
-version = "0.1.0"
+version = "0.2.0"
 description = "Inspired by https://github.com/drathier/stack-overflow-import"
 authors = [
     "Mythic <mythicmaniac@gmail.com>",
@@ -8,12 +8,18 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/MythicManiac/copilot-import"
+repository = "https://github.com/MythicManiac/copilot-import"
 packages = [
     { include = "copilot" },
 ]
 
+[tool.poetry.scripts]
+copilot-auth = 'copilot.authflow:run'
+
 [tool.poetry.dependencies]
 python = "^3.8"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 
